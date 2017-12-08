@@ -63,9 +63,6 @@ Will implement testing once we have hardware to work with.
 TODO
 ```
 
-#### Additional notes
-This section is optional. Can be used to give any other tips and tricks.
-
 ## Contributing
 1. Fork it (<https://github.com/yourname/yourproject/fork>)
 2. Create your feature branch (`git checkout -b feature/fooBar`)
