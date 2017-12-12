@@ -30,8 +30,8 @@ greenPin.start(0)
 bluePin.start(0)
 
 # Sonar sensor setup
-echoPin = 20
-triggerPin = 21
+echoPin = 20 #It's actually 20
+triggerPin = 21 #It's actually 21
 GPIO.setup(echoPin, GPIO.IN)
 GPIO.setup(triggerPin, GPIO.OUT)
 
@@ -63,6 +63,9 @@ def setColor(col):
 	greenPin.ChangeDutyCycle(greenVal)
 
 def distance():
+	GPIO.output(triggerPin, GPIO.LOW)
+	time.sleep(1)
+
 	# Set trigger to HIGH
 	GPIO.output(triggerPin, GPIO.HIGH)
 
@@ -75,10 +78,12 @@ def distance():
 
 	# Save StartTime
 	while GPIO.input(echoPin) == 0:
+		print "echo low:", GPIO.input(echoPin)
 		StartTime = time.time()
 
 	# Save time of arrival
 	while GPIO.input(echoPin) == 1:
+		print "echo high:", GPIO.input(echoPin)
 		StopTime = time.time()
 
 	# Time difference between start and arrival
@@ -94,7 +99,6 @@ def distance():
 # Main
 ###################################################
 
-'''
 try:
 	while True:
 		for col in colors:
@@ -120,3 +124,4 @@ except KeyboardInterrupt:
 	print "Measurement stopped by user"
 	GPIO.cleanup()
 
+'''
