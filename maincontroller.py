@@ -3,25 +3,41 @@
 import RPi.GPIO as GPIO
 import time
 
-colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF, 0xFF00FF, 0xFFFFFF, 0x9400D3]
+###################################################
+# Setup
+###################################################
 
-pins = {'redPin':26, 'greenPin':19, 'bluePin':13}
-
-#GPIO.setmode(GPIO.BOARD)
+# Board setup
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
-for i in pins:
-	print i, pins[i]
-	GPIO.setup(pins[i], GPIO.OUT)
-	GPIO.output(pins[i], GPIO.HIGH)
+# LED setup
+colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF, 0xFF00FF, 0xFFFFFF, 0x9400D3]
 
-redPin = GPIO.PWM(pins['redPin'], 2000)
-greenPin = GPIO.PWM(pins['greenPin'], 2000)
-bluePin = GPIO.PWM(pins['bluePin'], 2000)
+ledPins = {'redPin':26, 'greenPin':19, 'bluePin':13}
+
+
+for i in ledPins:
+	print i, ledPins[i]
+	GPIO.setup(ledPins[i], GPIO.OUT)
+	GPIO.output(ledPins[i], GPIO.HIGH)
+
+redPin = GPIO.PWM(ledPins['redPin'], 2000)
+greenPin = GPIO.PWM(ledPins['greenPin'], 2000)
+bluePin = GPIO.PWM(ledPins['bluePin'], 2000)
 redPin.start(0)
 greenPin.start(0)
 bluePin.start(0)
+
+# Sonar sensor setup
+echoPin = 20
+triggerPin = 21
+GPIO.setup(echoPin, GPIO.IN)
+GPIO.setup(triggerPin, GPIO.OUT)
+
+###################################################
+# Functions
+###################################################
 
 def map(x, in_min, in_max, out_min, out_max):
 	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
@@ -46,6 +62,39 @@ def setColor(col):
 	bluePin.ChangeDutyCycle(blueVal)
 	greenPin.ChangeDutyCycle(greenVal)
 
+def distance():
+	# Set trigger to HIGH
+	GPIO.output(triggerPin, GPIO.HIGH)
+
+	# Set trigger after 0.01ms to LOW
+	time.sleep(0.00001)
+	GPIO.output(triggerPin, GPIO.LOW)
+	
+	StartTime = time.time()
+	StopTime = time.time()
+
+	# Save StartTime
+	while GPIO.input(echoPin) == 0:
+		StartTime = time.time()
+
+	# Save time of arrival
+	while GPIO.input(echoPin) == 1:
+		StopTime = time.time()
+
+	# Time difference between start and arrival
+	timeElapsed = StopTime - StartTime
+
+	# Multiply with the sonic speed (34300 cm/s)
+	# and divide by 2, because there and back
+	distance = (timeElapsed * 34300) / 2
+
+	return distance
+
+###################################################
+# Main
+###################################################
+
+'''
 try:
 	while True:
 		for col in colors:
@@ -56,7 +105,18 @@ except KeyboardInterrupt:
 	redPin.stop()
 	bluePin.stop()
 	greenPin.stop()
-	for i in pins:
-		GPIO.output(pins[i], GPIO.HIGH)
+	for i in ledPins:
+		GPIO.output(ledPins[i], GPIO.HIGH)
+	GPIO.cleanup()
+
+'''
+
+try:
+	while True:
+		dist = distance()
+		print "Measured Distance = %.1f cm" % dist
+		time.sleep(1)
+except KeyboardInterrupt:
+	print "Measurement stopped by user"
 	GPIO.cleanup()
 
