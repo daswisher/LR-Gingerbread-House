@@ -46,7 +46,12 @@ GPIO.setup(echoPin, GPIO.IN)
 GPIO.setup(triggerPin, GPIO.OUT)
 
 # Servo setup
-servoPin = 222
+dutyCycle = 7.5
+servoPin = 12
+GPIO.setup(servoPin, GPIO.OUT)
+
+pwmServo = GPIO.PWM(servoPin, 50)
+pwmServo.start(dutyCycle)
 
 ###################################################
 # Functions
@@ -131,6 +136,7 @@ except KeyboardInterrupt:
 
 '''
 
+'''
 try:
 	while True:
 		dist = distance()
@@ -140,3 +146,12 @@ except KeyboardInterrupt:
 	print "Measurement stopped by user"
 	GPIO.cleanup()
 
+'''
+
+try:
+	while True:
+		dutyCycle = float(input("Enter duty cycle; Left=5; Right = 10:"))
+		pwmServo.ChangeDutyCycle(dutyCycle)
+except KeyboardInterrupt:
+	print "CTRL-C: Terminating program."
+	GPIO.cleanup()
