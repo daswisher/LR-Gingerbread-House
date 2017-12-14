@@ -14,6 +14,7 @@ GPIO.setwarnings(False)
 # LED setup
 colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF, 0xFF00FF, 0xFFFFFF, 0x9400D3]
 
+############## GPIO 20 is broken on my personal board ##############
 configuredLines = {
 	'line1':{'redPinNum':13, 'greenPinNum':19, 'bluePinNum':26},
 	'line2':{'redPinNum':16, 'greenPinNum':4, 'bluePinNum':21},
@@ -39,8 +40,8 @@ for ledLine in configuredLines:
 	configuredLines[ledLine]['bluePin'] = bluePin 
 
 # Sonar sensor setup
-echoPin = 20 #It's actually 20
-triggerPin = 21 #It's actually 21
+echoPin = 5
+triggerPin = 6
 GPIO.setup(echoPin, GPIO.IN)
 GPIO.setup(triggerPin, GPIO.OUT)
 
@@ -93,12 +94,10 @@ def distance():
 
 	# Save StartTime
 	while GPIO.input(echoPin) == 0:
-		print "echo low:", GPIO.input(echoPin)
 		StartTime = time.time()
 
 	# Save time of arrival
 	while GPIO.input(echoPin) == 1:
-		print "echo high:", GPIO.input(echoPin)
 		StopTime = time.time()
 
 	# Time difference between start and arrival
@@ -114,6 +113,7 @@ def distance():
 # Main
 ###################################################
 
+'''
 try:
 	while True:
 		for col in colors:
@@ -135,9 +135,8 @@ try:
 	while True:
 		dist = distance()
 		print "Measured Distance = %.1f cm" % dist
-		time.sleep(1)
+		time.sleep(0.01)
 except KeyboardInterrupt:
 	print "Measurement stopped by user"
 	GPIO.cleanup()
 
-'''
