@@ -88,12 +88,12 @@ def setColor(col, configuredLine):
 
 def distance():
 	GPIO.output(triggerPin, GPIO.LOW)
-	time.sleep(1)
 
-	# Set trigger to HIGH
+	# Let the sensor settle before sampling distance again
+	time.sleep(0.01)
+
 	GPIO.output(triggerPin, GPIO.HIGH)
 
-	# Set trigger after 0.01ms to LOW
 	time.sleep(0.00001)
 	GPIO.output(triggerPin, GPIO.LOW)
 	
@@ -108,18 +108,41 @@ def distance():
 	while GPIO.input(echoPin) == 1:
 		StopTime = time.time()
 
-	# Time difference between start and arrival
 	timeElapsed = StopTime - StartTime
 
-	# Multiply with the sonic speed (34300 cm/s)
-	# and divide by 2, because there and back
+	# Multiply with the sonic speed (34300 cm/s) and divide by 2, because there and back
 	distance = (timeElapsed * 34300) / 2
 
+	# Distance is in centimeters
 	return distance
 
 ###################################################
 # Main
 ###################################################
+
+try:
+	colorIndex = 0
+	while True:
+
+		# Check to see if there isn't something in front of the house
+		if distance() > 100.0:
+			lineNumber = 0
+			for lineName in configuredLines:
+				setColor(colors[(colorIndex + lineNumber) % len(colors) - 1], configuredLines[lineName])
+				lineNumber += 1
+
+		# Alarm if there is something in front of the house
+		else:
+			for lineName in configuredLines:
+				setColor(0xFF0000, configuredLines[lineName])
+
+		if colorIndex > len(colors) - 1:
+			colorIndex = 0
+		else:
+			colorIndex += 1
+except KeyboardInterrupt:
+	print "Terminating: User halted script."
+	GPIO.cleanup()
 
 '''
 try:
