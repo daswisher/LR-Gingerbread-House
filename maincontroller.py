@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from pygame import mixer
+
 import RPi.GPIO as GPIO
 import time
 
@@ -52,6 +54,15 @@ GPIO.setup(servoPin, GPIO.OUT)
 pwmServo = GPIO.PWM(servoPin, 50)
 pwmServo.start(dutyCycle)
 
+# Audio setup
+'''
+mixer.init()
+mixer.music.load('Get outta here.mp3')
+mixer.music.play()
+time.sleep(5)
+mixer.stop()
+#audioSound.set_volume(0.0)
+'''
 ###################################################
 # Functions
 ###################################################
@@ -110,6 +121,7 @@ def distance():
 # Main
 ###################################################
 
+'''
 try:
 	while True:
 		for col in colors:
@@ -124,16 +136,15 @@ except KeyboardInterrupt:
 	for i in ledPins:
 		GPIO.output(ledPins[i], GPIO.HIGH)
 	GPIO.cleanup()
-
-
+'''
 '''
 try:
 	while True:
 		dist = distance()
+		print "dist:", dist
 		time.sleep(0.01)
 except KeyboardInterrupt:
 	GPIO.cleanup()
-
 '''
 '''
 try:
@@ -142,5 +153,4 @@ try:
 		pwmServo.ChangeDutyCycle(dutyCycle)
 except KeyboardInterrupt:
 	GPIO.cleanup()
-
 '''
