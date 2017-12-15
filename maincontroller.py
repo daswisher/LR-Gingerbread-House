@@ -14,7 +14,7 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
 # LED setup
-colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF, 0xFF00FF, 0xFFFFFF, 0x9400D3]
+colors = [0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF, 0xFF00FF, 0xFFFFFF, 0x9400D3]
 
 ############## GPIO 20 is broken on my personal board ##############
 configuredLines = {
@@ -140,6 +140,8 @@ try:
 			colorIndex = 0
 		else:
 			colorIndex += 1
+		time.sleep(3)
+
 except KeyboardInterrupt:
 	print "Terminating: User halted script."
 	GPIO.cleanup()
