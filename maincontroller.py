@@ -24,7 +24,6 @@ configuredLines = {
 for ledLine in configuredLines:
 	ledPins = configuredLines[ledLine]
 	for i in ledPins:
-		print i, ledPins[i]
 		GPIO.setup(ledPins[i], GPIO.OUT)
 		GPIO.output(ledPins[i], GPIO.HIGH)
 
@@ -71,13 +70,6 @@ def setColor(col, configuredLine):
 	redVal = map(redVal, 0, 255, 0, 255)
 	blueVal = map(blueVal, 0, 255, 0, 255)
 	greenVal = map(greenVal, 0, 255, 0, 255)
-	print "redval", redVal
-	print "blueval", blueVal
-	print "greenval", greenVal
-
-	#redPin.ChangeDutyCycle(100-redVal)
-	#bluePin.ChangeDutyCycle(100-blueVal)
-	#greenPin.ChangeDutyCycle(100-greenVal)
 
 	r_pin.ChangeDutyCycle(redVal)
 	b_pin.ChangeDutyCycle(blueVal)
@@ -118,7 +110,6 @@ def distance():
 # Main
 ###################################################
 
-'''
 try:
 	while True:
 		for col in colors:
@@ -134,24 +125,22 @@ except KeyboardInterrupt:
 		GPIO.output(ledPins[i], GPIO.HIGH)
 	GPIO.cleanup()
 
-'''
 
 '''
 try:
 	while True:
 		dist = distance()
-		print "Measured Distance = %.1f cm" % dist
 		time.sleep(0.01)
 except KeyboardInterrupt:
-	print "Measurement stopped by user"
 	GPIO.cleanup()
 
 '''
-
+'''
 try:
 	while True:
 		dutyCycle = float(input("Enter duty cycle; Left=5; Right = 10:"))
 		pwmServo.ChangeDutyCycle(dutyCycle)
 except KeyboardInterrupt:
-	print "CTRL-C: Terminating program."
 	GPIO.cleanup()
+
+'''
