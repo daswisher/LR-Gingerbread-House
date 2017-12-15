@@ -126,9 +126,13 @@ try:
 
 		# Check to see if there isn't something in front of the house
 		if distance() > 100.0:
+
+			# Iterate over all of the LED lines and set them to have different colors
 			lineNumber = 0
 			for lineName in configuredLines:
-				setColor(colors[(colorIndex + lineNumber) % len(colors) - 1], configuredLines[lineName])
+				lineColorIndex = (colorIndex + lineNumber) % len(colors)
+				print "Line:", lineName, "Color:", lineColorIndex
+				setColor(colors[lineColorIndex], configuredLines[lineName])
 				lineNumber += 1
 
 		# Alarm if there is something in front of the house
