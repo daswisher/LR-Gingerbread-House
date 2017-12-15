@@ -129,9 +129,8 @@ try:
 
 			# Iterate over all of the LED lines and set them to have different colors
 			lineNumber = 0
-			for lineName in configuredLines:
+			for lineName in sorted(configuredLines):
 				lineColorIndex = (colorIndex + lineNumber) % len(colors)
-				print "Line:", lineName, "Color:", lineColorIndex
 				setColor(colors[lineColorIndex], configuredLines[lineName])
 				lineNumber += 1
 
