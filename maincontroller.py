@@ -3,7 +3,10 @@
 from pygame import mixer
 
 import RPi.GPIO as GPIO
+import threading
+import signal
 import time
+import sys
 
 ###################################################
 # Setup
@@ -14,7 +17,7 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
 # LED setup
-colors = [0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF, 0xFF00FF, 0xFFFFFF, 0x9400D3]
+colors = [0x00FFFF, 0xFF00FF, 0xFFFFFF]
 
 ############## GPIO 20 is broken on my personal board ##############
 configuredLines = {
@@ -63,6 +66,63 @@ time.sleep(5)
 mixer.stop()
 #audioSound.set_volume(0.0)
 '''
+
+# Alarming status
+alarmLock = threading.Lock()
+colorIndex = 0
+
+###################################################
+# Classes
+###################################################
+class ledManager(threading.Thread):
+	def __init__(self):
+		threading.Thread.__init__(self)
+	def run(self):
+		global colorIndex
+
+		while True:
+			# Iterate over all of the LED lines and set them to have different colors
+			lineNumber = 0
+			
+			alarmLock.acquire()
+
+			for lineName in sorted(configuredLines):
+				lineColorIndex = (colorIndex + lineNumber) % len(colors)
+				setColor(colors[lineColorIndex], configuredLines[lineName])
+				lineNumber += 1
+
+			colorIndex = (colorIndex + 1) % len(colors)
+			alarmLock.release()
+			time.sleep(3)
+
+class sonarManager(threading.Thread):
+	def __init__(self):
+		threading.Thread.__init__(self)
+
+	def run(self):
+		global colorIndex
+
+		while True:
+			# Check to see if there is something in front of the house and alarm if so
+			if distance() < 100.0:
+				alarmLock.acquire()
+
+				# Alarm if there is something in front of the house
+				for lineName in configuredLines:
+					setColor(0xFF0000, configuredLines[lineName])
+
+				while distance() < 100.0:
+					time.sleep(0.5)
+
+				lineNumber = 0
+
+				for lineName in sorted(configuredLines):
+					lineColorIndex = (colorIndex + lineNumber) % len(colors)
+					setColor(colors[lineColorIndex], configuredLines[lineName])
+					lineNumber += 1
+
+				alarmLock.release()
+
 ###################################################
 # Functions
 ###################################################
@@ -121,64 +181,16 @@ def distance():
 ###################################################
 
 try:
-	colorIndex = 0
-	while True:
+	ledThread = ledManager()
+	sonarThread = sonarManager()
+	ledThread.daemon = True
+	sonarThread.daemon = True
+	ledThread.start()
+	sonarThread.start()
 
-		# Check to see if there isn't something in front of the house
-		if distance() > 100.0:
-
-			# Iterate over all of the LED lines and set them to have different colors
-			lineNumber = 0
-			for lineName in sorted(configuredLines):
-				lineColorIndex = (colorIndex + lineNumber) % len(colors)
-				setColor(colors[lineColorIndex], configuredLines[lineName])
-				lineNumber += 1
-
-		# Alarm if there is something in front of the house
-		else:
-			for lineName in configuredLines:
-				setColor(0xFF0000, configuredLines[lineName])
-
-		if colorIndex > len(colors) - 1:
-			colorIndex = 0
-		else:
-			colorIndex += 1
-		time.sleep(3)
+	signal.pause()
 
 except KeyboardInterrupt:
 	print "Terminating: User halted script."
-	GPIO.cleanup()
+	sys.exit()
 
-'''
-try:
-	while True:
-		for col in colors:
-			for lineName in configuredLines:
-				setColor(col, configuredLines[lineName])
-				time.sleep(1.0)
-
-except KeyboardInterrupt:
-	redPin.stop()
-	bluePin.stop()
-	greenPin.stop()
-	for i in ledPins:
-		GPIO.output(ledPins[i], GPIO.HIGH)
-	GPIO.cleanup()
-'''
-'''
-try:
-	while True:
-		dist = distance()
-		print "dist:", dist
-		time.sleep(0.01)
-except KeyboardInterrupt:
-	GPIO.cleanup()
-'''
-'''
-try:
-	while True:
-		dutyCycle = float(input("Enter duty cycle; Left=5; Right = 10:"))
-		pwmServo.ChangeDutyCycle(dutyCycle)
-except KeyboardInterrupt:
-	GPIO.cleanup()
-'''
